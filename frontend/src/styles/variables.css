@@ -1,0 +1,13 @@
+/* colors */
+:root {
+  --max-width: 1680px;
+  --max-width: 105rem;
+
+  --max-view-width: 1920px;
+  --max-view-width: 120rem;
+
+  --radius: var(--sp-4xs-3xs);
+  /*--radius: 0;*/
+  --border: calc(var(--sp-6xs) / 2);
+  --lib-border: 0;
+}
