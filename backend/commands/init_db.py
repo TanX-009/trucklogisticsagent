@@ -1,17 +1,47 @@
 import sqlite3
 
 # Create or connect to the database
-conn = sqlite3.connect("truck_status.db")
+conn = sqlite3.connect("logistics.db")
 cursor = conn.cursor()
 
 # Create the table
 cursor.execute(
     """
-CREATE TABLE IF NOT EXISTS trucks (
-    truck_code TEXT PRIMARY KEY,
-    truck_status TEXT NOT NULL
+    CREATE TABLE IF NOT EXISTS trucks (
+        truck_code TEXT PRIMARY KEY,
+        truck_status TEXT NOT NULL
+    )
+    """
 )
-"""
+
+cursor.executescript(
+    """
+    CREATE TABLE IF NOT EXISTS customers (
+        customer_id TEXT PRIMARY KEY,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS transports_goods (
+        customer_id TEXT PRIMARY KEY,
+        transports_goods BOOLEAN,
+        FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+    );
+    CREATE TABLE IF NOT EXISTS transport_route (
+        customer_id TEXT PRIMARY KEY,
+        route_from TEXT,
+        route_to TEXT,
+        FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+    );
+    CREATE TABLE IF NOT EXISTS transport_mode (
+        customer_id TEXT PRIMARY KEY,
+        transport_mode TEXT CHECK(transport_mode IN ('own', 'partner', 'service')),
+        FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+    );
+    CREATE TABLE IF NOT EXISTS transport_weight (
+        customer_id TEXT PRIMARY KEY,
+        weight_kg REAL,
+        FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+    );
+    """
 )
 
 # Dummy data
@@ -37,4 +67,4 @@ cursor.executemany(
 conn.commit()
 conn.close()
 
-print("truck_status.db created and populated.")
+print("logistics.db created and populated.")

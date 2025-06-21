@@ -5,7 +5,7 @@ import io
 
 async def synthesize_text_to_memory(text):
     communicate = edge_tts.Communicate(
-        text, "en-IN-NeerjaNeural", rate="+7%", pitch="+1Hz"
+        text, "en-IN-NeerjaNeural", rate="+30%", pitch="-10Hz"
     )
     stream = io.BytesIO()
 
