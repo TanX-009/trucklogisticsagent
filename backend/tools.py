@@ -3,25 +3,12 @@ from database import (
     insert_transports_goods,
     insert_transport_route,
     insert_transport_mode,
+    truck_status,
 )
 
 
 def get_truck_status(truck_code: str) -> str:
-    """
-    Get status of truck from database
-
-    Args:
-      truck_code (str): The truck code
-
-    Returns:
-      str: Current status of the truck
-    """
-    dummy_db = {
-        "TRUCK1234": "Delayed due to weather",
-        "T456": "Delivered",
-        "TRUCK789": "In Transit",
-    }
-    return dummy_db.get(truck_code.strip().upper(), "No status found for this truck.")
+    return truck_status(truck_code)
 
 
 get_truck_status_tool = {

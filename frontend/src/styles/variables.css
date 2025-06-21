@@ -1,7 +1,7 @@
 /* colors */
 :root {
-  --max-width: 1680px;
-  --max-width: 105rem;
+  --max-width: 1440px;
+  --max-width: 90rem;
 
   --max-view-width: 1920px;
   --max-view-width: 120rem;

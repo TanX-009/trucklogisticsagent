@@ -2,7 +2,12 @@ import re
 import base64
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-from database import create_customer
+from database import (
+    create_customer,
+    get_all_transport_details,
+    get_all_truck_statuses,
+    get_transport_details,
+)
 from whisper_handler import transcribe_audio
 from tts_handler import synthesize_speech  # returns bytes
 from llm import chat_with_ollama  # returns conversation history with last reply
@@ -19,6 +24,7 @@ Guidelines:
 - Use a friendly, polite tone.
 - Only speak like a human would in short, natural sentences unless using tools.
 - DO NOT add extra information.
+- DO NOT use * or any other such characters to quote e.g. DO NOT use something like **T001**
 - DO NOT mention being an AI or a chatbot.
 - DO NOT use emojis or any symbols that aren't a word or would sound weird when spoken.
 - DO NOT quote anything.
@@ -28,7 +34,7 @@ Guidelines:
 - If you do not understand the user, ask the user to repeat politely.
 - You can only provide truck status if anyone asks other than that just say you cannot assist regarding anything other than truck status.
 - Ask user after answering for any other truck status enquiries.
-- Only when user ends the conversation (thanking is also to be considered as end of conversation) reply with following at the end on a new line: $$end_conversation$$
+- Only when user ends the conversation (thanking is also to be considered as end of conversation) reply with end greet and following at the end on a new line: $$end_conversation$$
 """
 
 
@@ -112,11 +118,12 @@ Guidelines:
 - Be polite and sound natural, as if you're having a casual human conversation.
 - DO NOT answer anything unrelated.
 - DO NOT mention being an AI or a chatbot.
+- DO NOT use * or any other such characters to quote e.g. DO NOT use something like **T001**
 - Do NOT include any symbols or formatting that sound unnatural when spoken.
 - If user says they are not interested or says thank you, politely end the conversation.
 - If you don't understand, ask the user to repeat.
-- After collecting all 3 answers or when user ends the conversation, reply with a polite "thank you for the information and have a great day" message and at the end on new line add following: $$end_conversation$$
 - After receiving each answer from the user, use the tools to add the relevant data to relevant database using relevant tool.
+- Only when user ends the conversation (thanking is also to be considered as end of conversation) reply with end greet and following at the end on a new line: $$end_conversation$$
 """
 
 
@@ -214,6 +221,22 @@ def leadfinder_agent():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# Flask routes
+@app.route("/trucks", methods=["GET"])
+def trucks_route():
+    return jsonify(get_all_truck_statuses())
+
+
+@app.route("/transport/<customer_id>", methods=["GET"])
+def transport_route(customer_id):
+    return jsonify(get_transport_details(customer_id))
+
+
+@app.route("/transports", methods=["GET"])
+def all_transports_route():
+    return jsonify(get_all_transport_details())
 
 
 # Static file serving for default audio

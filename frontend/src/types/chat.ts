@@ -1,5 +1,6 @@
 export interface TChat {
-  role: "assistant" | "tool" | "user";
+  role: "assistant" | "tool" | "user" | "system";
+  name?: string;
   content: string;
 }
 

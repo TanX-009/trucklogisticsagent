@@ -1,117 +1,94 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import styles from "./styles.module.css";
-import { TConversation } from "@/types/chat";
-import AIAgentService from "@/services/aiagent";
-import { getSupportedMimeType } from "@/systems/mimeTypes";
+import { useEffect, useState } from "react";
+import { TTransport, TTruckStatus } from "@/types/admin";
+import useFetchTruckStatuses from "@/hooks/fetchTruckStatuses";
+import useFetchTransports from "@/hooks/fetchTransports";
 
 export default function Home() {
-  const [hasStarted, setHasStarted] = useState(false);
-  const [conversation, setConversation] = useState<TConversation>([]);
-  const conversationRef = useRef<TConversation>(conversation);
-  const [isRecording, setIsRecording] = useState(false);
+  const [truckStatuses, setTruckStatuses] = useState<TTruckStatus[]>([]);
 
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const recordedChunksRef = useRef<Blob[]>([]);
-
-  const startRecording = async () => {
-    const mimeType = getSupportedMimeType();
-    if (!mimeType) {
-      console.error("No supported audio format available");
-      return;
-    }
-
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType, // Efficient format
-        audioBitsPerSecond: 32000, // Lower bitrate for optimized size
-      });
-      mediaRecorderRef.current = mediaRecorder;
-      recordedChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) recordedChunksRef.current.push(e.data);
-      };
-
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(recordedChunksRef.current, {
-          type: mimeType,
-        });
-
-        const response = await AIAgentService.enquiryAgent({
-          conversation: conversationRef.current,
-          audio_blob: audioBlob,
-        }); // pass FormData directly
-
-        if (response.success) {
-          setConversation(response.data.conversation);
-          playBase64Audio(response.data.audio_base64, () => {
-            if (!response.data.end_conversation) {
-              startRecording();
-            }
-          });
-        }
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-    } catch (error) {
-      console.error("Error accessing microphone:", error);
-    }
-  };
-
-  const stopRecording = () => {
-    mediaRecorderRef.current?.stop();
-    setIsRecording(false);
-  };
-
-  const playBase64Audio = (base64: string, onEnd: () => void) => {
-    if (!base64) return;
-    const audio = new Audio("data:audio/mp3;base64," + base64);
-    audio.play();
-    audio.onended = onEnd;
-  };
-
-  const handleStart = async () => {
-    setHasStarted(true);
-    const response = await AIAgentService.enquiryAgent({
-      conversation: [],
-      audio_blob: null,
-    });
-
-    if (response.success) {
-      setConversation(response.data.conversation);
-      playBase64Audio(response.data.audio_base64, () => {
-        if (!response.data.end_conversation) {
-          startRecording();
-        }
-      });
-    }
-  };
-
+  const { isLoading: isTruckStatusesLoading, fetchTruckStatuses } =
+    useFetchTruckStatuses(setTruckStatuses);
   useEffect(() => {
-    conversationRef.current = conversation;
-  }, [conversation]);
+    fetchTruckStatuses();
+  }, [fetchTruckStatuses]);
 
+  const [transports, setTransports] = useState<TTransport[]>([]);
+
+  const { isLoading: isTransportsLoading, fetchTransports } =
+    useFetchTransports(setTransports);
+  useEffect(() => {
+    fetchTransports();
+  }, [fetchTransports]);
   return (
-    <div className={styles.page}>
-      <div style={{ marginTop: "1rem" }}>
-        {conversation.map((chat, index) => (
-          <div key={index}>
-            <strong>{chat.role}</strong>: {chat.content}
-          </div>
-        ))}
+    <div className={`${styles.home} disf fldc aic`}>
+      <div className={`disf ${styles.links}`}>
+        <Link className={`button`} href={"/enquiry"}>
+          Enquiry Agent
+        </Link>
+        <Link className={`button`} href={"/leadfinder"}>
+          Leadfinder Agent
+        </Link>
       </div>
-      {!hasStarted ? (
-        <button onClick={handleStart}>
-          Start Enquiry Agent Call Simulation
-        </button>
-      ) : isRecording ? (
-        <button onClick={stopRecording} disabled={!isRecording}>
-          Stop Recording
-        </button>
-      ) : null}
+
+      <div className={`disf ${styles.tables}`}>
+        {isTruckStatusesLoading ? (
+          "Loading..."
+        ) : (
+          <div className={`disf aic fldc`}>
+            <h2>Truck Status</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Truck Code</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {truckStatuses.map((truck) => (
+                  <tr key={truck.truck_code}>
+                    <td>{truck.truck_code}</td>
+                    <td>{truck.truck_status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {isTransportsLoading ? (
+          "Loading..."
+        ) : (
+          <div className={`disf aic fldc`}>
+            <h2>Transport Details</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer ID</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Mode</th>
+                  <th>Transports Goods</th>
+                  <th>Weight (kg)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transports.map((t) => (
+                  <tr key={t.customer_id}>
+                    <td>{t.customer_id}</td>
+                    <td>{t.route_from}</td>
+                    <td>{t.route_to}</td>
+                    <td>{t.transport_mode}</td>
+                    <td>{t.transports_goods ? "Yes" : "No"}</td>
+                    <td>{t.weight_kg}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

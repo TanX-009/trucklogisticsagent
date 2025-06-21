@@ -61,17 +61,7 @@ button,
 
   outline: none;
   border: none;
-
-  clip-path: polygon(
-    var(--sp-4xs) 0%,
-    /* top-left cut */ calc(100% - var(--sp-4xs)) 0%,
-    /* top-right cut */ 100% var(--sp-4xs),
-    100% calc(100% - var(--sp-4xs)),
-    calc(100% - var(--sp-4xs)) 100%,
-    var(--sp-4xs) 100%,
-    0% calc(100% - var(--sp-4xs)),
-    0% var(--sp-4xs)
-  );
+  border-radius: var(--radius);
 
   color: var(--primary);
   background: var(--primaryContainer);
@@ -90,6 +80,30 @@ button:focus,
   outline-offset: var(--lib-border);
 }
 
+table {
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: var(--primaryContainer);
+}
+
+th,
+td {
+  border: var(--border) solid var(--primary);
+  text-align: left;
+  padding: var(--sp-3xs);
+}
+
+tr:nth-child(even) {
+  background-color: var(--surfaceContainerHigh);
+}
+
+tr:hover {
+  background-color: var(--secondary);
+  color: var(--secondaryContainer);
+}
+
 /* flex */
 .disf {
   display: flex;
@@ -103,6 +117,9 @@ button:focus,
 .aifs {
   align-items: flex-start;
 }
+.aife {
+  align-items: flex-end;
+}
 .jcc {
   justify-content: center;
 }
@@ -115,22 +132,11 @@ button:focus,
 .jcfs {
   justify-content: flex-start;
 }
+.jcfe {
+  justify-content: flex-end;
+}
 .flww {
   flex-wrap: wrap;
-}
-
-/* styles */
-.cutCorners {
-  clip-path: polygon(
-    var(--sp-4xs) 0%,
-    /* top-left cut */ calc(100% - var(--sp-4xs)) 0%,
-    /* top-right cut */ 100% var(--sp-4xs),
-    100% calc(100% - var(--sp-4xs)),
-    calc(100% - var(--sp-4xs)) 100%,
-    var(--sp-4xs) 100%,
-    0% calc(100% - var(--sp-4xs)),
-    0% var(--sp-4xs)
-  );
 }
 
 /* status colors */

@@ -4,9 +4,7 @@ import ollama
 def prompt_ollama(system_prompt, conversation, tools):
     messages = [{"role": "system", "content": system_prompt}] + conversation
     print("Prompting to ollama...")
-    response = ollama.chat(
-        model="llama3.2", messages=messages, stream=False, tools=tools
-    )
+    response = ollama.chat(model="qwen3", messages=messages, stream=False, tools=tools)
     print("done")
 
     return response

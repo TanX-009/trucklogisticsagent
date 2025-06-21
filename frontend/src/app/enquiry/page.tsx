@@ -6,9 +6,8 @@ import AIAgentService from "@/services/aiagent";
 import { getSupportedMimeType } from "@/systems/mimeTypes";
 import { LuBot, LuUser } from "react-icons/lu";
 
-export default function Leadfinder() {
+export default function Enquiry() {
   const [hasStarted, setHasStarted] = useState(false);
-  const customer_id = useRef<string>("");
   const [conversation, setConversation] = useState<TConversation>([]);
   const conversationRef = useRef<TConversation>(conversation);
   const [isRecording, setIsRecording] = useState(false);
@@ -41,8 +40,7 @@ export default function Leadfinder() {
           type: mimeType,
         });
 
-        const response = await AIAgentService.leadfinderAgent({
-          customer_id: customer_id.current,
+        const response = await AIAgentService.enquiryAgent({
           conversation: conversationRef.current,
           audio_blob: audioBlob,
         }); // pass FormData directly
@@ -78,15 +76,13 @@ export default function Leadfinder() {
 
   const handleStart = async () => {
     setHasStarted(true);
-    const response = await AIAgentService.leadfinderAgent({
-      customer_id: "",
+    const response = await AIAgentService.enquiryAgent({
       conversation: [],
       audio_blob: null,
     });
 
     if (response.success) {
       setConversation(response.data.conversation);
-      customer_id.current = response.data.customer_id;
       playBase64Audio(response.data.audio_base64, () => {
         if (!response.data.end_conversation) {
           startRecording();
@@ -127,7 +123,7 @@ export default function Leadfinder() {
       </div>
       {!hasStarted ? (
         <button onClick={handleStart}>
-          Start Leadfinder Agent Call Simulation
+          Start Enquiry Agent Call Simulation
         </button>
       ) : isRecording ? (
         <button onClick={stopRecording} disabled={!isRecording}>

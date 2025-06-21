@@ -1,0 +1,15 @@
+.home {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--sp-3xs);
+
+  gap: var(--sp-3xs);
+}
+
+.links {
+  gap: var(--sp-3xs);
+}
+
+.tables {
+  gap: var(--sp-3xs);
+}
